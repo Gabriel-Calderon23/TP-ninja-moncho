@@ -12,13 +12,19 @@ export default class Game extends Phaser.Scene {
     // init variables
     // take data passed from other scenes
     // data object param {}
+
+    
+
+
+
+
   }
 
   preload() {
     // load assets
     this.load.image("sky", "./public/assets/cielo.webp");        
     this.load.image("ground", "./public/assets/platform.png");
-    this.load.image("diamod", "./public/assets/diamond.png");
+    this.load.image("diamond", "./public/assets/diamond.png");
     this.load.image("player", "./public/assets/ninja.png");
     this.load.image("square", "./public/assets/square.png")
     this.load.image("triangle", "./public/assets/triangle.png");
@@ -41,9 +47,11 @@ export default class Game extends Phaser.Scene {
 
    this.cursors = this.input.keyboard.createCursorKeys()
 
+  
    this.items = this.physics.add.group(); // hace un grupo de items
 
-   this.physics.add.collider(this.items, this.platforms); // los items colicionan con las plataformas
+   this.physics.add.overlap(this.player, this.items, this.collectItem, null, this); // Colisión entre jugador e ítems para recolectarlos
+
 
 
      // timer que genera item cada 1 segundo
@@ -72,6 +80,11 @@ spawnItem() {
   }
 
 
+collectItem(player, item) {
+    item.destroy(); // Elimina el ítem al ser tocado
+  }
+
+
   update() {
     // update game objects
 
@@ -86,4 +99,7 @@ spawnItem() {
         this.player.setVelocityY(-330);
       }
   }
+
+  
+
 }
