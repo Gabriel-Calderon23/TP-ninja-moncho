@@ -13,6 +13,7 @@ export default class Game extends Phaser.Scene {
     // take data passed from other scenes
     // data object param {}
 
+   this.collectedItems = []; // Array donde se guardan los ítems recolectados
     
 
 
@@ -50,7 +51,10 @@ export default class Game extends Phaser.Scene {
   
    this.items = this.physics.add.group(); // hace un grupo de items
 
-   this.physics.add.overlap(this.player, this.items, this.collectItem, null, this); // Colisión entre jugador e ítems para recolectarlos
+   this.physics.add.overlap(this.player, this.items, this.collectItem, null, this); 
+
+   this.physics.add.collider(this.items, this.platforms);
+  
 
 
 
@@ -60,6 +64,12 @@ export default class Game extends Phaser.Scene {
       callback: this.spawnItem,
       callbackScope: this,
       loop: true
+    });
+
+      // Texto para mostrar victoria
+    this.winText = this.add.text(300, 250, "", {
+      fontSize: "32px",
+      fill: "#ffffff"
     });
 
 
@@ -74,6 +84,7 @@ spawnItem() {
     const x = Phaser.Math.Between(50, 750);
 
     const item = this.items.create(x, 0, randomType).setScale(0.5); // Genera uno en una posición horizontal aleatoria.
+     item.setData("type", randomType); // Guardamos el tipo dentro del sprite
     item.setBounce(0.1);
     item.setCollideWorldBounds(false);
     item.setVelocityY(Phaser.Math.Between(100, 200)); // velocidad aleatoria de caída
@@ -81,7 +92,32 @@ spawnItem() {
 
 
 collectItem(player, item) {
+  const type = item.getData("type");
+  this.collectedItems.push(type); // Guardamos el tipo en el array
     item.destroy(); // Elimina el ítem al ser tocado
+    this.checkWinCondition(); // Verificamos si ya ganó
+  }
+
+  checkWinCondition() {
+    const counts = {
+      square: 0,
+      triangle: 0,
+      diamond: 0
+    };
+
+    // Contar cuántos de cada tipo tiene el jugador
+    for (let type of this.collectedItems) {
+      if (counts[type] !== undefined) {
+        counts[type]++;
+      }
+    }
+
+    // Verificar condición de victoria
+    if (counts.square >= 2 && counts.triangle >= 2 && counts.diamond >= 2) {
+      this.winText.setText("¡Ganaste!");
+      this.physics.pause(); // Pausa el juego
+      this.time.removeAllEvents(); // Detiene el spawn de ítems
+    }
   }
 
 
