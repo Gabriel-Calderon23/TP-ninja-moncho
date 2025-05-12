@@ -41,11 +41,36 @@ export default class Game extends Phaser.Scene {
 
    this.cursors = this.input.keyboard.createCursorKeys()
 
+   this.items = this.physics.add.group(); // hace un grupo de items
+
+   this.physics.add.collider(this.items, this.platforms); // los items colicionan con las plataformas
+
+
+     // timer que genera item cada 1 segundo
+     this.time.addEvent({
+      delay: 1000,
+      callback: this.spawnItem,
+      callbackScope: this,
+      loop: true
+    });
+
 
 
 
     
   }
+
+spawnItem() {
+    const itemTypes = ["square", "triangle", "diamond"]; //Elige al azar entre 3 tipos de ítems
+    const randomType = Phaser.Math.RND.pick(itemTypes);
+    const x = Phaser.Math.Between(50, 750);
+
+    const item = this.items.create(x, 0, randomType).setScale(0.5); // Genera uno en una posición horizontal aleatoria.
+    item.setBounce(0.1);
+    item.setCollideWorldBounds(false);
+    item.setVelocityY(Phaser.Math.Between(100, 200)); // velocidad aleatoria de caída
+  }
+
 
   update() {
     // update game objects
