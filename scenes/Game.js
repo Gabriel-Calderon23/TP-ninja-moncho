@@ -39,6 +39,9 @@ export default class Game extends Phaser.Scene {
    this.player.setCollideWorldBounds(true); // hace que el personaje golpe con el borde del mundo (pantalla)
    this.physics.add.collider(this.player, this.platforms);// hace que la plataforma y el personaje colicionen
 
+   this.cursors = this.input.keyboard.createCursorKeys()
+
+
 
 
     
@@ -46,5 +49,16 @@ export default class Game extends Phaser.Scene {
 
   update() {
     // update game objects
+
+    if (this.cursors.left.isDown) {
+        this.player.setVelocityX(-160);
+      } else if (this.cursors.right.isDown) {
+        this.player.setVelocityX(160);
+      } else {
+        this.player.setVelocityX(0);
+      }
+      if (this.cursors.up.isDown && this.player.body.touching.down) {
+        this.player.setVelocityY(-330);
+      }
   }
 }
