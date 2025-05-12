@@ -31,7 +31,8 @@ export default class Game extends Phaser.Scene {
     this.load.image("player", "./public/assets/ninja.png");
     this.load.image("square", "./public/assets/square.png")
     this.load.image("triangle", "./public/assets/triangle.png");
-    this.load.image("fireball", "./public/assets/fireball.png")
+    this.load.image("fireball", "./public/assets/fireball.png");
+    this.load.image("menu", "./public/assets/fondoMenu.jpg");
     
   }
 
@@ -197,9 +198,10 @@ collectItem(player, item) {
       const hasEnoughScore = this.score >= 100; 
 
     if (hasEnoughOfEachItem || hasEnoughScore) {
-      this.winText.setText("¡Ganaste!");
-      this.physics.pause(); // Pausa el juego
-      this.time.removeAllEvents(); // Detiene el spawn de ítems
+      this.scene.start("finish", {
+    win: true,
+    score: this.score
+  });
     }
 
     
@@ -210,10 +212,10 @@ collectItem(player, item) {
   this.timerText.setText(`Tiempo: ${this.timeLeft}`);
 
   if (this.timeLeft <= 0) {
-    this.timerEvent.remove(); // detener el evento
-    this.physics.pause();
-    this.winText.setText("¡GAME OVER!");
-    this.time.removeAllEvents(); // detener el spawn de ítems
+   this.scene.start("finish", {
+    win: false,
+    score: this.score
+  });
   }
 }
 
