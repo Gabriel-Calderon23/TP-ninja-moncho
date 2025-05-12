@@ -42,6 +42,12 @@ export default class Game extends Phaser.Scene {
    this.platforms = this.physics.add.staticGroup(); // le agrego fisicas a la plataforma
   
    this.platforms.create(400, 568, "ground").setScale(2).refreshBody(); // carga la plataforma y la escala x2
+
+  
+    this.platforms.create(50, 300, "ground");
+    this.platforms.create(750, 220, "ground");
+
+
    this.player = this.physics.add.sprite(400, 450, "player").setScale(0.1);// carga el personaje y le reduce el tamaño
    //this.player.setBounce(0.2);
 
@@ -60,6 +66,9 @@ export default class Game extends Phaser.Scene {
    this.physics.add.collider(this.items, this.platforms, (item) => {
   let durability = item.getData("durability");
   durability -= 5;
+
+
+  
 
   if (durability <= 0) {
     item.destroy();
@@ -103,6 +112,10 @@ export default class Game extends Phaser.Scene {
   fill: '#ffffff'
    });
 
+   
+  this.input.keyboard.on('keydown-R', () => { // al preisionar la tecla R la ecena se reinicia 
+      this.scene.restart();
+  });
 
 
 
@@ -183,7 +196,7 @@ collectItem(player, item) {
   if (this.timeLeft <= 0) {
     this.timerEvent.remove(); // detener el evento
     this.physics.pause();
-    this.winText.setText("¡Perdiste!");
+    this.winText.setText("¡GAME OVER!");
     this.time.removeAllEvents(); // detener el spawn de ítems
   }
 }
