@@ -14,6 +14,7 @@ export default class Game extends Phaser.Scene {
     // data object param {}
 
    this.collectedItems = []; // Array donde se guardan los ítems recolectados
+   this.timeLeft = 30; // duración total en segundos
     
 
 
@@ -53,10 +54,8 @@ export default class Game extends Phaser.Scene {
 
    this.physics.add.overlap(this.player, this.items, this.collectItem, null, this); 
 
-   this.physics.add.collider(this.items, this.platforms);
+   this.physics.add.collider(this.items, this.platforms); // colicion entre los items y las plataformas
   
-
-
 
      // timer que genera item cada 1 segundo
      this.time.addEvent({
@@ -71,6 +70,21 @@ export default class Game extends Phaser.Scene {
       fontSize: "32px",
       fill: "#ffffff"
     });
+
+    // Texto del temporizador
+   this.timerText = this.add.text(650, 16, `Tiempo: ${this.timeLeft}`, {
+  fontSize: '24px',
+  fill: '#ffffff'
+   });
+   
+
+    // Evento que reduce el tiempo cada segundo
+   this.timerEvent = this.time.addEvent({
+   delay: 1000,
+   callback: this.updateTimer,
+   callbackScope: this,
+   loop: true
+   });
 
 
 
@@ -119,6 +133,18 @@ collectItem(player, item) {
       this.time.removeAllEvents(); // Detiene el spawn de ítems
     }
   }
+
+  updateTimer() {
+  this.timeLeft--;
+  this.timerText.setText(`Tiempo: ${this.timeLeft}`);
+
+  if (this.timeLeft <= 0) {
+    this.timerEvent.remove(); // detener el evento
+    this.physics.pause();
+    this.winText.setText("¡Perdiste!");
+    this.time.removeAllEvents(); // detener el spawn de ítems
+  }
+}
 
 
   update() {
