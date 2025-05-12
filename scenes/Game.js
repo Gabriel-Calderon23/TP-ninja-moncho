@@ -15,7 +15,7 @@ export default class Game extends Phaser.Scene {
 
    this.collectedItems = []; // Array donde se guardan los ítems recolectados
    this.timeLeft = 30; // duración total en segundos
-   this.score = 0;
+   this.score = 0; // contador
     
 
 
@@ -56,11 +56,22 @@ export default class Game extends Phaser.Scene {
    this.physics.add.overlap(this.player, this.items, this.collectItem, null, this); 
 
    this.physics.add.collider(this.items, this.platforms); // colicion entre los items y las plataformas
+
+   this.physics.add.collider(this.items, this.platforms, (item) => {
+  let durability = item.getData("durability");
+  durability -= 5;
+
+  if (durability <= 0) {
+    item.destroy();
+   } else {
+    item.setData("durability", durability);
+   }
+   });
   
 
      // timer que genera item cada 1 segundo
      this.time.addEvent({
-      delay: 1000,
+      delay: 500,
       callback: this.spawnItem,
       callbackScope: this,
       loop: true
@@ -104,10 +115,12 @@ spawnItem() {
     const x = Phaser.Math.Between(50, 750);
 
     const item = this.items.create(x, 0, randomType).setScale(0.5); // Genera uno en una posición horizontal aleatoria.
-     item.setData("type", randomType); // Guardamos el tipo dentro del sprite
-    item.setBounce(0.1);
+    item.setData("type", randomType); // Guardamos el tipo dentro del sprite
+    item.setData("durability", 10); // puntos de vida iniciales
+    item.setBounce(0.6); // mas rebote para que rebote mas veces
     item.setCollideWorldBounds(false);
     item.setVelocityY(Phaser.Math.Between(100, 200)); // velocidad aleatoria de caída
+    item.setData("lastVelocityY", 0); // Para detectar rebote
   }
 
 
@@ -179,6 +192,9 @@ collectItem(player, item) {
   update() {
     // update game objects
 
+   
+   
+   
     if (this.cursors.left.isDown) {
         this.player.setVelocityX(-160);
       } else if (this.cursors.right.isDown) {
@@ -187,9 +203,32 @@ collectItem(player, item) {
         this.player.setVelocityX(0);
       }
       if (this.cursors.up.isDown && this.player.body.touching.down) {
-        this.player.setVelocityY(-330);
+    
+        this.player.setVelocityY(-330);      }
+
+
+   // Verificar rebotes y reducir durabilidad
+  this.items.getChildren().forEach(item => {
+    const vy = item.body.velocity.y;
+    const lastVY = item.getData("lastVelocityY");
+
+    // Detectar rebote: cambio de dirección vertical de hacia abajo a hacia arriba
+    if (lastVY > 50 && vy < -50) {
+      let durability = item.getData("durability") - 5;
+      item.setData("durability", durability);
+      if (durability <= 0) {
+        item.destroy();
       }
+    }
+
+    item.setData("lastVelocityY", vy);
+  });
+
+
+
+        
   }
+
 
   
 
