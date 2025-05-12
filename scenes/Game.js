@@ -31,6 +31,7 @@ export default class Game extends Phaser.Scene {
     this.load.image("player", "./public/assets/ninja.png");
     this.load.image("square", "./public/assets/square.png")
     this.load.image("triangle", "./public/assets/triangle.png");
+    this.load.image("fireball", "./public/assets/fireball.png")
     
   }
 
@@ -117,17 +118,24 @@ export default class Game extends Phaser.Scene {
       this.scene.restart();
   });
 
-
+ 
 
     
   }
 
 spawnItem() {
-    const itemTypes = ["square", "triangle", "diamond"]; //Elige al azar entre 3 tipos de ítems
+    const itemTypes = ["square", "triangle", "diamond","fireball"]; //Elige al azar entre 3 tipos de ítems
     const randomType = Phaser.Math.RND.pick(itemTypes);
     const x = Phaser.Math.Between(50, 750);
 
-    const item = this.items.create(x, 0, randomType).setScale(0.5); // Genera uno en una posición horizontal aleatoria.
+    const item = this.items.create(x, 0, randomType) // Genera uno en una posición horizontal aleatoria.
+   // Escala especial para fireball
+  if (randomType === "fireball") {
+    item.setScale(0.1); // más pequeño
+  } else {
+    item.setScale(0.5); // tamaño normal
+  }
+   
     item.setData("type", randomType); // Guardamos el tipo dentro del sprite
     item.setData("durability", 10); // puntos de vida iniciales
     item.setBounce(0.6); // mas rebote para que rebote mas veces
@@ -139,6 +147,13 @@ spawnItem() {
 
 collectItem(player, item) {
   const type = item.getData("type");
+  
+  if (type === "fireball") {
+    this.score -= 20; // cantidad de puntos a restar
+    if (this.score < 0) this.score = 0;
+  } else
+
+  
   this.collectedItems.push(type); // Guardamos el tipo en el array
 
    // Asignar puntaje según tipo
@@ -149,6 +164,7 @@ collectItem(player, item) {
   };
   
   this.score += scoreValues[type] || 0;
+  this.checkWinCondition(); // Solo verifica victoria si NO es un fireball
   this.scoreText.setText(`Puntaje: ${this.score}`);
 
     item.destroy(); // Elimina el ítem al ser tocado
