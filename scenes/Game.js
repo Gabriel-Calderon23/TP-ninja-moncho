@@ -15,6 +15,7 @@ export default class Game extends Phaser.Scene {
 
    this.collectedItems = []; // Array donde se guardan los ítems recolectados
    this.timeLeft = 30; // duración total en segundos
+   this.score = 0;
     
 
 
@@ -86,6 +87,11 @@ export default class Game extends Phaser.Scene {
    loop: true
    });
 
+   this.scoreText = this.add.text(16, 16, `Puntaje: ${this.score}`, {
+  fontSize: '24px',
+  fill: '#ffffff'
+   });
+
 
 
 
@@ -108,8 +114,21 @@ spawnItem() {
 collectItem(player, item) {
   const type = item.getData("type");
   this.collectedItems.push(type); // Guardamos el tipo en el array
+
+   // Asignar puntaje según tipo
+  const scoreValues = {
+    square: 10,
+    triangle: 15,
+    diamond: 20
+  };
+  
+  this.score += scoreValues[type] || 0;
+  this.scoreText.setText(`Puntaje: ${this.score}`);
+
     item.destroy(); // Elimina el ítem al ser tocado
     this.checkWinCondition(); // Verificamos si ya ganó
+
+    
   }
 
   checkWinCondition() {
@@ -127,11 +146,21 @@ collectItem(player, item) {
     }
 
     // Verificar condición de victoria
-    if (counts.square >= 2 && counts.triangle >= 2 && counts.diamond >= 2) {
+    const hasEnoughOfEachItem = (
+     counts.square >= 2 && 
+     counts.triangle >= 2 &&
+     counts.diamond >= 2
+      );
+      
+      const hasEnoughScore = this.score >= 100; 
+
+    if (hasEnoughOfEachItem || hasEnoughScore) {
       this.winText.setText("¡Ganaste!");
       this.physics.pause(); // Pausa el juego
       this.time.removeAllEvents(); // Detiene el spawn de ítems
     }
+
+    
   }
 
   updateTimer() {
